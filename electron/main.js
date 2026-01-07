@@ -2,7 +2,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
-const certManager = require('./cert_manager'); // [추가] 인증서 관리 모듈 임포트
+const certManager = require('./cert_manager'); // 인증서 관리 모듈
 
 let mainWindow;
 let pythonProcess;
@@ -10,8 +10,8 @@ let proxyProcess;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 800,
+    width: 1100,
+    height: 900,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -19,63 +19,56 @@ function createWindow() {
     }
   });
 
-  // [디버깅] 개발자 도구 열기
   mainWindow.webContents.openDevTools();
-
   const url = 'http://localhost:3000';
-  console.log(`[Electron] Loading URL: ${url}`);
-
+  console.log(`[Electron] UI 로드 중: ${url}`);
   mainWindow.loadURL(url);
 
-  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-    console.error(`[Electron Error] Failed to load URL: ${errorCode} - ${errorDescription}`);
+  mainWindow.webContents.on('did-fail-load', () => {
+    console.error(`[Electron Error] 페이지를 로드할 수 없습니다. Vite 서버를 확인하세요.`);
   });
 }
 
-// 1. Python FastAPI 서버 실행
+// Python FastAPI 서버 실행
 function startPythonBackend() {
   const scriptPath = path.join(__dirname, '../backend/main.py');
   pythonProcess = spawn('python', [scriptPath]);
 
-  pythonProcess.stdout.on('data', (data) => {
-    console.log(`[Python]: ${data}`);
-  });
-
-  pythonProcess.stderr.on('data', (data) => {
-    console.error(`[Python Error]: ${data}`);
-  });
+  pythonProcess.stdout.on('data', (data) => console.log(`[Python]: ${data}`));
+  pythonProcess.stderr.on('data', (data) => console.error(`[Python Error]: ${data}`));
 }
 
-// 2. Mitmproxy 실행 함수 (실제 프로세스 생성)
+// Mitmproxy(프록시 서버) 실행
 function launchMitmproxy() {
-  const addonPath = path.join(__dirname, '../backend/addons/injector.py');
-  // mitmdump는 UI 없는 CLI 버전
-  proxyProcess = spawn('mitmdump', ['-s', addonPath]);
-  
-  proxyProcess.stdout.on('data', (data) => {
-    console.log(`[Mitmproxy]: ${data}`);
-  });
-
-  proxyProcess.stderr.on('data', (data) => {
-    console.error(`[Mitmproxy Error]: ${data}`);
-  });
-
-  console.log("Mitmproxy Started...");
-}
-
-// 3. 프록시 시작 요청 처리 (인증서 설치 -> 프록시 실행)
-ipcMain.handle('start-proxy', () => {
   if (proxyProcess) return;
 
-  // 인증서 설치 모듈 호출, 설치 완료(또는 스킵) 후 launchMitmproxy 실행
+  const addonPath = path.join(__dirname, '../backend/addons/injector.py');
+  // 8080 포트로 프록시 서버 실행
+  proxyProcess = spawn('mitmdump', ['-s', addonPath, '--listen-port', '8080']);
+  
+  proxyProcess.stdout.on('data', (data) => console.log(`[Proxy]: ${data}`));
+  proxyProcess.stderr.on('data', (data) => console.error(`[Proxy Error]: ${data}`));
+
+  console.log("[System] 프록시 서버(Port 8080)가 준비되었습니다.");
+}
+
+// 앱 시작 시 자동 실행 흐름
+app.whenReady().then(() => {
+  // 1. 파이썬 백엔드 시작
+  startPythonBackend();
+
+  // 2. 인증서 설치 후 프록시 자동 시작 (개선된 부분)
   certManager.installCertificate(() => {
     launchMitmproxy();
   });
+
+  // 3. UI 창 생성
+  createWindow();
 });
 
-app.whenReady().then(() => {
-  startPythonBackend();
-  createWindow();
+// 기존 버튼 클릭 대응 (이미 실행 중이면 무시)
+ipcMain.handle('start-proxy', () => {
+  launchMitmproxy();
 });
 
 app.on('window-all-closed', () => {
