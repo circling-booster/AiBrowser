@@ -1,0 +1,63 @@
+{
+  "name": "ai-browser-platform",
+  "version": "1.0.0",
+  "description": "Electron based Python Automation Framework",
+  "main": "electron/main.js",
+  "author": "Your Name",
+  "license": "MIT",
+  "scripts": {
+    "start": "vite",
+    "electron": "electron .",
+    "dev": "concurrently -k \"cross-env BROWSER=none npm run start\" \"npm run electron:wait\"",
+    "electron:wait": "wait-on tcp:3000 && electron .",
+    "build:react": "vite build",
+    "build:backend": "echo 'Python backend should be compiled or copied here for production'",
+    "pack": "npm run build:react && electron-builder --dir",
+    "dist": "npm run build:react && electron-builder"
+  },
+  "build": {
+    "appId": "com.developer.aiplatform",
+    "productName": "AI Assistant Platform",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "backend/**/*",
+      "plugins/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "backend",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1",
+    "vite": "^5.0.10",
+    "wait-on": "^7.2.0"
+  }
+}

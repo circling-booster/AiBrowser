@@ -1,0 +1,9 @@
+{
+  "id": "yt-downloader",
+  "name": "YouTube AI Extractor",
+  "version": "1.0.0",
+  "targets": ["youtube.com"],
+  "backend_entry": "backend.py",
+  "frontend_script": "inject.js",
+  "description": "유튜브에서 오디오를 추출하고 분리합니다."
+}
