@@ -1,0 +1,12 @@
+{
+  "passthrough_hosts": [
+    "*.google.com",
+    "*.googleapis.com",
+    "accounts.google.com",
+    "*.bank.co.kr",
+    "*.kbstar.com",
+    "*.shinhan.com"
+  ],
+  "inference_mode": "local",
+  "azure_relay_url": "https://booster-app-gpa3bggkaxh3dhbg.koreacentral-01.azurewebsites.net"
+}

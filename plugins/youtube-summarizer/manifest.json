@@ -1,0 +1,9 @@
+{
+  "id": "youtube-summarizer",
+  "name": "YouTube Summarizer",
+  "description": "Summarizes videos",
+  "injection_targets": [
+    { "url_regex": "youtube\\.com/watch", "location": "body_end" }
+  ],
+  "permissions": []
+}
