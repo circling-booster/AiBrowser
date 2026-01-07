@@ -19,11 +19,21 @@ function App() {
       setStatus("Offline (Backend Failed)");
     }
   };
-
+  // src/App.jsx 수정
   const fetchPlugins = async () => {
-    const res = await fetch(`${API_BASE}/plugins`);
-    const data = await res.json();
-    setPlugins(data);
+    try {
+      console.log("[React] Fetching plugins from:", `${API_BASE}/plugins`);
+      const res = await fetch(`${API_BASE}/plugins`);
+      if (!res.ok) throw new Error(`HTTP Error! Status: ${res.status}`);
+
+      const data = await res.json();
+      console.log("[React] Plugins received:", data);
+      setPlugins(data);
+    } catch (err) {
+      // [디버깅 추가] 에러를 콘솔에 상세히 출력
+      console.error("[React Error] Failed to fetch plugins:", err.message);
+      setStatus(`Error: ${err.message}`);
+    }
   };
 
   const togglePlugin = async (id, currentState) => {
@@ -46,10 +56,10 @@ function App() {
             <p>{p.info.description}</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <label>
-                <input 
-                  type="checkbox" 
-                  checked={p.active} 
-                  onChange={() => togglePlugin(id, p.active)} 
+                <input
+                  type="checkbox"
+                  checked={p.active}
+                  onChange={() => togglePlugin(id, p.active)}
                 />
                 Activate Feature
               </label>
@@ -58,10 +68,10 @@ function App() {
           </div>
         ))}
       </div>
-      
+
       <div style={{ marginTop: 30 }}>
         <button onClick={() => window.electronAPI.openProxyBrowser()}>
-            🌐 Launch with Proxy (Native Browser)
+          🌐 Launch with Proxy (Native Browser)
         </button>
       </div>
     </div>
