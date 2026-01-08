@@ -7,6 +7,10 @@
     "*.kbstar.com",
     "*.shinhan.com"
   ],
-  "inference_mode": "local",  
-  "azure_relay_url": "https://booster-app-gpa3bggkaxh3dhbg.koreacentral-01.azurewebsites.net"
+  "azure_relay_url": "https://booster-app-gpa3bggkaxh3dhbg.koreacentral-01.azurewebsites.net",
+  "plugins": {
+    "youtube-summarizer": {
+      "inference_mode": "local"
+    }
+  }
 }

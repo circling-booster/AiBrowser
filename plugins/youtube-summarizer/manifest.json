@@ -5,5 +5,9 @@
   "injection_targets": [
     { "url_regex": "youtube\\.com/watch", "location": "body_end" }
   ],
+  "inference_config": {
+    "preferred_inference": "web",
+    "allowed_modes": ["web", "local"]
+  },
   "permissions": []
 }
