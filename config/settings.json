@@ -7,6 +7,6 @@
     "*.kbstar.com",
     "*.shinhan.com"
   ],
-  "inference_mode": "web",  
+  "inference_mode": "local",  
   "azure_relay_url": "https://booster-app-gpa3bggkaxh3dhbg.koreacentral-01.azurewebsites.net"
 }
